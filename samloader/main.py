@@ -37,6 +37,10 @@ def main():
     mkfw.add_argument("-M", "--show-md5", help="print the expected MD5 hash of the downloaded file", action="store_true")
     mkfw.add_argument("-o", "--out-file", help="output to the specified file")
     args = parser.parse_args()
+    args.fw_ver = args.fw_ver.upper()
+    args.dev_model = args.dev_model.upper()
+    args.dev_region = args.dev_region.upper()
+
     if args.command == "download" or args.command == "mkfw":
         client = fusclient.FUSClient()
         path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
