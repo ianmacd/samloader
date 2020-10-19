@@ -36,12 +36,22 @@ def main():
     mkfw.add_argument("-R", "--resume", help="resume an unfinished download", action="store_true")
     mkfw.add_argument("-M", "--show-md5", help="print the expected MD5 hash of the downloaded file", action="store_true")
     mkfw.add_argument("-o", "--out-file", help="output to the specified file")
+    latest = subparsers.add_parser("latest", help="fetch and decrypt latest firmware file")
+    latest.add_argument("-R", "--resume", help="resume an unfinished download", action="store_true")
+    latest.add_argument("-M", "--show-md5", help="print the expected MD5 hash of the downloaded file", action="store_true")
     args = parser.parse_args()
-    args.fw_ver = args.fw_ver.upper()
+    try: args.fw_ver
+    except AttributeError: args.fw_ver = None
+    if args.fw_ver is not None:
+        args.fw_ver = args.fw_ver.upper()
     args.dev_model = args.dev_model.upper()
     args.dev_region = args.dev_region.upper()
     if args.dev_model[0:3] != 'SM-':
         args.dev_model = 'SM-' + args.dev_model
+
+    if args.command == "latest":
+        args.fw_ver = versionfetch.getlatestver(args.dev_model, args.dev_region)
+        args.command = "mkfw"
 
     if args.command == "download" or args.command == "mkfw":
         client = fusclient.FUSClient()
@@ -75,6 +85,8 @@ def main():
     if args.command == "decrypt" or args.command == "mkfw":
         if args.command == "mkfw":
             args.in_file = out
+            try: args.out_file
+            except AttributeError: args.out_file = None
             if not args.out_file:
                 args.out_file = args.in_file[:-5]
             args.enc_ver = int(args.in_file[-1])
