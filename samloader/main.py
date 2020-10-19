@@ -50,7 +50,11 @@ def main():
         args.dev_model = 'SM-' + args.dev_model
 
     if args.command == "latest":
-        args.fw_ver = versionfetch.getlatestver(args.dev_model, args.dev_region)
+        try:
+            args.fw_ver = versionfetch.getlatestver(args.dev_model, args.dev_region)
+        except:
+            print("{} found for {} in {}.".format(args.fw_ver, args.dev_model, args.dev_region))
+            sys.exit(1)
         args.command = "mkfw"
 
     if args.command == "download" or args.command == "mkfw":
@@ -80,7 +84,11 @@ def main():
             fd.close()
 
     elif args.command == "checkupdate":
-        print(versionfetch.getlatestver(args.dev_model, args.dev_region))
+        try:
+            print(versionfetch.getlatestver(args.dev_model, args.dev_region))
+        except:
+            print("{} found for {} in {}.".format(args.fw_ver, args.dev_model, args.dev_region))
+            sys.exit(1)
 
     if args.command == "decrypt" or args.command == "mkfw":
         if args.command == "mkfw":
