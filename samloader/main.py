@@ -40,6 +40,8 @@ def main():
     args.fw_ver = args.fw_ver.upper()
     args.dev_model = args.dev_model.upper()
     args.dev_region = args.dev_region.upper()
+    if args.dev_model[0:3] != 'SM-':
+        args.dev_model = 'SM-' + args.dev_model
 
     if args.command == "download" or args.command == "mkfw":
         client = fusclient.FUSClient()
