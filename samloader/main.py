@@ -21,7 +21,7 @@ def main():
     dload.add_argument("-v", "--fw-ver", help="firmware version to download", required=True)
     dload.add_argument("-R", "--resume", help="resume an unfinished download", action="store_true")
     dload.add_argument("-M", "--show-md5", help="print the expected MD5 hash of the downloaded file", action="store_true")
-    dload_out = dload.add_mutually_exclusive_group(required=True)
+    dload_out = dload.add_mutually_exclusive_group(required=False)
     dload_out.add_argument("-O", "--out-dir", help="output the server filename to the specified directory")
     dload_out.add_argument("-o", "--out-file", help="output to the specified file")
     chkupd = subparsers.add_parser("checkupdate", help="check for the latest available firmware version")
@@ -35,7 +35,10 @@ def main():
         client = fusclient.FUSClient()
         path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
         print("resuming" if args.resume else "downloading", filename)
-        out = args.out_file if args.out_file else os.path.join(args.out_dir, filename)
+        if not (args.out_file or args.out_dir):
+            out = filename
+        else:
+            out = args.out_file if args.out_file else os.path.join(args.out_dir, filename)
         dloffset = os.stat(out).st_size if args.resume else 0
         if dloffset == size:
             print("already downloaded!")
