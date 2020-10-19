@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import sys
 import base64
 import xml.etree.ElementTree as ET
 from clint.textui import progress
@@ -85,12 +86,16 @@ def initdownload(client, filename):
     resp = client.makereq("NF_DownloadBinaryInitForMass.do", req)
 
 def getbinaryfile(client, fw, model, region):
-    req = request.binaryinform(fw, model, region, client.nonce)
-    resp = client.makereq("NF_DownloadBinaryInform.do", req)
-    root = ET.fromstring(resp)
-    status = int(root.find("./FUSBody/Results/Status").text)
-    if status != 200:
-        raise Exception("DownloadBinaryInform returned {}, firmware could not be found?".format(status))
+    try:
+        req = request.binaryinform(fw, model, region, client.nonce)
+        resp = client.makereq("NF_DownloadBinaryInform.do", req)
+        root = ET.fromstring(resp)
+        status = int(root.find("./FUSBody/Results/Status").text)
+        if status != 200:
+            raise
+    except:
+        print("{} for {} in {} not found.".format(fw, model, region))
+        sys.exit(1)
     size = int(root.find("./FUSBody/Put/BINARY_BYTE_SIZE/Data").text)
     filename = root.find("./FUSBody/Put/BINARY_NAME/Data").text
     path = root.find("./FUSBody/Put/MODEL_PATH/Data").text
