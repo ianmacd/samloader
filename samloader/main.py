@@ -60,12 +60,17 @@ def main():
     if args.command == "download" or args.command == "mkfw":
         client = fusclient.FUSClient()
         path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
-        print("resuming" if args.resume else "downloading", filename)
         if args.command == "mkfw" or not (args.out_file or args.out_dir):
             out = filename
         else:
             out = args.out_file if args.out_file else os.path.join(args.out_dir, filename)
-        dloffset = os.stat(out).st_size if args.resume else 0
+        try:
+            dloffset = os.stat(out).st_size if args.resume else 0
+        except FileNotFoundError:
+            args.resume = None
+            dloffset = 0
+
+        print("resuming" if args.resume else "downloading", filename)
         if dloffset == size:
             print("already downloaded!")
             if args.command == "download":
