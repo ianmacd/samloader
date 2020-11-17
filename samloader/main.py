@@ -54,6 +54,7 @@ def main():
         if args.command == "latest":
             try:
                 args.fw_ver = versionfetch.getlatestver(args.dev_model, args.dev_region)
+                print(args.fw_ver)
             except:
                 print("{} found for {} in {}.".format(args.fw_ver, args.dev_model, args.dev_region))
                 sys.exit(1)
