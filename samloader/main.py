@@ -17,8 +17,8 @@ from . import versionfetch
 def main():
     try:
         parser = argparse.ArgumentParser(description="Download and query firmware for Samsung devices.")
-        parser.add_argument("-m", "--dev-model", help="device region code", required=True)
-        parser.add_argument("-r", "--dev-region", help="device model", required=True)
+        parser.add_argument("-m", "--dev-model", help="device model", required=True)
+        parser.add_argument("-r", "--dev-region", help="device region code", required=True)
         subparsers = parser.add_subparsers(dest="command")
         dload = subparsers.add_parser("download", help="download a firmware")
         dload.add_argument("-v", "--fw-ver", help="firmware version to download", required=True)
@@ -116,7 +116,6 @@ def main():
                 os.remove(args.in_file)
     except KeyboardInterrupt:
         exit(1)
-
 
 def initdownload(client, filename):
     req = request.binaryinit(filename, client.nonce)
