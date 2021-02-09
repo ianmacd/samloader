@@ -99,7 +99,7 @@ def main():
                         return
                     print("decrypting", out)
                     # TODO: remove code duplication with decrypt command
-                    getkey = crypt.getv2key if filename.endswith(".enc2") else crypt.getenc4key
+                    getkey = crypt.getv2key if filename.endswith(".enc2") else crypt.getv4key
                     key = getkey(args.fw_ver, args.dev_model, args.dev_region)
                     length = os.stat(out).st_size
                     with open(out, "rb") as inf:
