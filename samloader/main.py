@@ -34,11 +34,6 @@ def main():
         decrypt.add_argument("-V", "--enc-ver", type=int, choices=[2, 4], default=4, help="encryption version (default 4)")
         decrypt.add_argument("-i", "--in-file", help="encrypted firmware file input", required=True)
         decrypt.add_argument("-o", "--out-file", help="decrypted firmware file output", required=True)
-        mkfw = subparsers.add_parser("mkfw", help="download and decrypt enc4/enc2 files")
-        mkfw.add_argument("-v", "--fw-ver", help="firmware version to download and decrypt", required=True)
-        mkfw.add_argument("-R", "--resume", help="resume an unfinished download", action="store_true")
-        mkfw.add_argument("-M", "--show-md5", help="print the expected MD5 hash of the downloaded file", action="store_true")
-        mkfw.add_argument("-o", "--out-file", help="output to the specified file")
         latest = subparsers.add_parser("latest", help="fetch and decrypt latest firmware file")
         latest.add_argument("-R", "--resume", help="resume an unfinished download", action="store_true")
         latest.add_argument("-M", "--show-md5", help="print the expected MD5 hash of the downloaded file", action="store_true")
@@ -59,12 +54,12 @@ def main():
             except:
                 print("{} found for {} in {}.".format(args.fw_ver, args.dev_model, args.dev_region))
                 sys.exit(1)
-            args.command = "mkfw"
+            args.do_decrypt = True
 
-        if args.command == "download" or args.command == "mkfw":
+        if args.command == "download" or args.command == "latest":
             client = fusclient.FUSClient()
             path, filename, size = getbinaryfile(client, args.fw_ver, args.dev_model, args.dev_region)
-            if args.command == "mkfw" or not (args.out_file or args.out_dir):
+            if args.command == "latest" or not (args.out_file or args.out_dir):
                 out = filename
             else:
                 out = args.out_file if args.out_file else os.path.join(args.out_dir, filename)
@@ -115,22 +110,13 @@ def main():
                 print("{} found for {} in {}.".format(args.fw_ver, args.dev_model, args.dev_region))
                 sys.exit(1)
 
-        if args.command == "decrypt" or args.command == "mkfw":
-            if args.command == "mkfw":
-                args.in_file = out
-                try: args.out_file
-                except AttributeError: args.out_file = None
-                if not args.out_file:
-                    args.out_file = args.in_file[:-5]
-                args.enc_ver = int(args.in_file[-1])
+        if args.command == "decrypt":
             getkey = crypt.getv4key if args.enc_ver == 4 else crypt.getv2key
             key = getkey(args.fw_ver, args.dev_model, args.dev_region)
             length = os.stat(args.in_file).st_size
             with open(args.in_file, "rb") as inf:
                 with open(args.out_file, "wb") as outf:
                     crypt.decrypt_progress(inf, outf, key, length)
-            if args.command == "mkfw":
-                os.remove(args.in_file)
     except KeyboardInterrupt:
         exit(1)
 
