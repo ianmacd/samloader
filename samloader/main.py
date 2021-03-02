@@ -75,22 +75,23 @@ def main():
                 dloffset = 0
 
             print("resuming" if args.resume else "downloading", filename)
-            if dloffset == size:
+            if dloffset == size and not args.do_decrypt:
                 print("already downloaded!")
                 if args.command == "download":
                     return
             else:
-                fd = open(out, "ab" if args.resume else "wb")
-                initdownload(client, filename)
-                r = client.downloadfile(path+filename, dloffset)
-                if args.show_md5 and "Content-MD5" in r.headers:
-                    print("MD5:", base64.b64decode(r.headers["Content-MD5"]).hex())
-                # TODO: use own progress bar instead of clint
-                for chunk in progress.bar(r.iter_content(chunk_size=0x10000), expected_size=((size-dloffset)/0x10000)+1):
-                    if chunk:
-                        fd.write(chunk)
-                        fd.flush()
-                fd.close()
+                if dloffset != size:
+                    fd = open(out, "ab" if args.resume else "wb")
+                    initdownload(client, filename)
+                    r = client.downloadfile(path+filename, dloffset)
+                    if args.show_md5 and "Content-MD5" in r.headers:
+                        print("MD5:", base64.b64decode(r.headers["Content-MD5"]).hex())
+                    # TODO: use own progress bar instead of clint
+                    for chunk in progress.bar(r.iter_content(chunk_size=0x10000), expected_size=((size-dloffset)/0x10000)+1):
+                        if chunk:
+                            fd.write(chunk)
+                            fd.flush()
+                    fd.close()
 
                 if args.do_decrypt: # decrypt the file if needed
                     dec = out.replace(".enc4", "").replace(".enc2", "") # TODO: use a better way of doing this
