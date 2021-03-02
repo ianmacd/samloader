@@ -91,7 +91,7 @@ def main():
                 if args.do_decrypt: # decrypt the file if needed
                     dec = out.replace(".enc4", "").replace(".enc2", "") # TODO: use a better way of doing this
                     if os.path.isfile(dec):
-                        print("file {} already exists, refusing to auto-decrypt!")
+                        print("file {} already exists, refusing to auto-decrypt!".fornmat(dec))
                         return
                     print("decrypting", out)
                     # TODO: remove code duplication with decrypt command
